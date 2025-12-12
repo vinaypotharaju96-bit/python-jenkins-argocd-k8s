@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/vinaypotharaju96-bit/python-jenkins-argocd-k8s.git'
@@ -19,14 +20,13 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh '''
-                    echo Logging into Docker Hub...
-                    echo "$PASSWORD" | docker login -u "$USERNAME" --password-stdin
-
-                    echo Pushing Docker Image...
-                    docker push vinay314/cicd-e2e:1
-                    '''
+                script {
+                    docker.withRegistry('', 'dockerhub') {
+                        sh '''
+                        echo Pushing Docker Image
+                        docker push vinay314/cicd-e2e:1
+                        '''
+                    }
                 }
             }
         }
